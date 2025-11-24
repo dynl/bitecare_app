@@ -1,6 +1,6 @@
+import 'package:bitecare_app/services/appointment_service.dart';
 import 'package:flutter/material.dart';
 import 'package:bitecare_app/models/appointments.dart';
-import 'package:bitecare_app/services/api_service.dart';
 import 'package:bitecare_app/screens/edit_appointment_screen.dart';
 
 class AppointmentDetailScreen extends StatefulWidget {
@@ -34,7 +34,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               Navigator.pop(ctx); // Close dialog
               setState(() => _isLoading = true);
 
-              final success = await ApiService.deleteAppointment(
+              final success = await AppointmentService.deleteAppointment(
                 widget.appointment.id!,
               );
 

@@ -1,6 +1,7 @@
+import 'package:bitecare_app/services/appointment_service.dart';
+import 'package:bitecare_app/services/vaccine_service.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
-import 'package:bitecare_app/services/api_service.dart';
 import 'package:intl/intl.dart';
 
 class CalendarTab extends StatefulWidget {
@@ -26,8 +27,8 @@ class _CalendarTabState extends State<CalendarTab> {
 
   void _loadData() async {
     // Fetch both booked appointments and daily limits (vaccine stock)
-    final availability = await ApiService.getAvailability();
-    final stocks = await ApiService.getVaccineStockMap();
+    final availability = await AppointmentService.getAvailability();
+    final stocks = await VaccineService.getVaccineStockMap();
 
     if (mounted) {
       setState(() {

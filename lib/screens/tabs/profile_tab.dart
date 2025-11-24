@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bitecare_app/providers/auth_provider.dart';
-import 'package:bitecare_app/services/api_service.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:bitecare_app/services/user_service.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -23,7 +23,7 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   void _fetchUser() async {
-    final data = await ApiService.getUserProfile();
+    final data = await UserService.getUserProfile();
     if (mounted) {
       setState(() {
         _userData = data;
@@ -46,7 +46,7 @@ class _ProfileTabState extends State<ProfileTab> {
       setState(() => _isUploading = true);
 
       // 2. Upload via API
-      bool success = await ApiService.uploadAvatar(image);
+      bool success = await UserService.uploadAvatar(image);
 
       if (mounted) {
         setState(() => _isUploading = false);

@@ -1,6 +1,7 @@
+import 'package:bitecare_app/services/recommendation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:bitecare_app/services/api_service.dart';
+import 'package:bitecare_app/services/appointment_service.dart';
 
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
@@ -28,7 +29,7 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   void _fetchRecommendation() async {
-    final rec = await ApiService.getBestDayRecommendation();
+    final rec = await RecommendationService.getBestDayRecommendation();
     if (mounted && rec != null) {
       setState(() {
         _recommendation = rec;
@@ -107,7 +108,7 @@ class _BookingScreenState extends State<BookingScreen> {
         'time': 'Walk-In / Day',
       };
 
-      final response = await ApiService.bookAppointment(bookingData);
+      final response = await AppointmentService.bookAppointment(bookingData);
 
       if (mounted) {
         setState(() => _isLoading = false);

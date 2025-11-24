@@ -1,6 +1,7 @@
+import 'package:bitecare_app/services/vaccine_service.dart';
 import 'package:flutter/material.dart';
 import 'package:bitecare_app/models/appointments.dart';
-import 'package:bitecare_app/services/api_service.dart';
+import 'package:bitecare_app/services/appointment_service.dart';
 import 'package:bitecare_app/screens/bookappointment.dart';
 import 'package:bitecare_app/screens/appointment_detail_screen.dart';
 
@@ -33,7 +34,7 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
 
   // --- NEW METHOD TO FETCH STOCK ---
   void _fetchStock() async {
-    final stock = await ApiService.getTodayVaccineStock();
+    final stock = await VaccineService.getTodayVaccineStock();
     if (mounted) {
       setState(() {
         _vaccineStock = stock;
@@ -43,7 +44,7 @@ class _AppointmentsTabState extends State<AppointmentsTab> {
   }
 
   Future<List<Appointment>> _fetchAppointments() async {
-    final List<dynamic> rawAppointments = await ApiService.getAppointments();
+    final List<dynamic> rawAppointments = await AppointmentService.getAppointments();
     return rawAppointments.map((json) => Appointment.fromJson(json)).toList();
   }
 

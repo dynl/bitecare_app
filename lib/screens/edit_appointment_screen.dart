@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:bitecare_app/models/appointments.dart';
-import 'package:bitecare_app/services/api_service.dart';
+import 'package:bitecare_app/services/appointment_service.dart';
 
 class EditAppointmentScreen extends StatefulWidget {
   final Appointment appointment;
@@ -20,31 +20,12 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
 
   String _selectedSex = 'Male';
   DateTime? _selectedDate;
-  String? _selectedTimeSlot;
-  bool _isLoading = false;
 
-  // Master list of time slots (Lunch Break Removed)
-  final List<String> _timeSlots = [
-    '08:00 AM',
-    '08:30 AM',
-    '09:00 AM',
-    '09:30 AM',
-    '10:00 AM',
-    '01:00 PM',
-    '01:30 PM',
-    '02:00 PM',
-    '02:30 PM',
-    '03:00 PM',
-    '03:30 PM',
-    '04:00 PM',
-    '04:30 PM',
-    '05:00 PM',
-  ];
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    // Initialize controllers with existing appointment data
     _nameController = TextEditingController(text: widget.appointment.name);
     _ageController = TextEditingController(
       text: widget.appointment.age.toString(),
@@ -52,19 +33,13 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
     _animalController = TextEditingController(
       text: widget.appointment.animalType,
     );
-
-    // Set initial values
     _selectedSex = widget.appointment.sex;
 
-    // Parse date
     try {
       _selectedDate = DateFormat('yyyy-MM-dd').parse(widget.appointment.date);
     } catch (e) {
       _selectedDate = DateTime.now();
     }
-
-    // Set time slot
-    _selectedTimeSlot = widget.appointment.time;
   }
 
   @override
@@ -75,70 +50,23 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
     super.dispose();
   }
 
-  // --- NEW: LOGIC TO FILTER PAST TIMES ---
-  List<String> _getAvailableSlots() {
-    // If no date is selected, we can show all (or none).
-    // Showing all allows user to see what's typically offered.
-    if (_selectedDate == null) return _timeSlots;
-
-    final now = DateTime.now();
-
-    // Check if the selected date is TODAY
-    bool isToday =
-        _selectedDate!.year == now.year &&
-        _selectedDate!.month == now.month &&
-        _selectedDate!.day == now.day;
-
-    if (!isToday) {
-      // If it's a future date, ALL slots are available
-      return _timeSlots;
-    }
-
-    // If it IS today, filter out passed times
-    return _timeSlots.where((slot) {
-      try {
-        // Parse "08:00 AM"
-        final format = DateFormat("hh:mm a");
-        final time = format.parse(slot);
-
-        // Create a DateTime object for TODAY at this SLOT's time
-        final slotDateTime = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          time.hour,
-          time.minute,
-        );
-
-        // Only keep slots that are in the future
-        return slotDateTime.isAfter(now);
-      } catch (e) {
-        return true; // Fallback
-      }
-    }).toList();
-  }
-
   Future<void> _pickDate() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime.now(), // Prevents past dates
+      firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
 
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
-        // IMPORTANT: Reset time when date changes to ensure validity
-        _selectedTimeSlot = null;
       });
     }
   }
 
   void _submitUpdate() async {
-    if (_formKey.currentState!.validate() &&
-        _selectedDate != null &&
-        _selectedTimeSlot != null) {
+    if (_formKey.currentState!.validate() && _selectedDate != null) {
       setState(() => _isLoading = true);
 
       final String formattedDate = DateFormat(
@@ -151,11 +79,10 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
         'sex': _selectedSex,
         'animal_type': _animalController.text,
         'date': formattedDate,
-        'time': _selectedTimeSlot,
+        'time': 'Walk-In / Day', // Default value
       };
 
-      // Call API
-      final response = await ApiService.updateAppointment(
+      final response = await AppointmentService.updateAppointment(
         widget.appointment.id!,
         updateData,
       );
@@ -164,14 +91,11 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
         setState(() => _isLoading = false);
 
         if (response['success'] == true) {
-          // Success Case
           ScaffoldMessenger.of(
             context,
           ).showSnackBar(const SnackBar(content: Text('Appointment Updated!')));
-          // Return the updated appointment to the previous screen
           Navigator.pop(context, true);
         } else {
-          // Failure Case - Show error
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(response['message'] ?? 'Update Failed')),
           );
@@ -186,9 +110,6 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate available slots dynamically
-    final availableSlots = _getAvailableSlots();
-
     return Scaffold(
       appBar: AppBar(title: const Text("Edit Appointment")),
       body: Padding(
@@ -239,7 +160,6 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 20),
-
               InkWell(
                 onTap: _pickDate,
                 child: InputDecorator(
@@ -258,29 +178,6 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
                   ),
                 ),
               ),
-
-              const SizedBox(height: 15),
-
-              // --- UPDATED DROPDOWN ---
-              DropdownButtonFormField<String>(
-                value: _selectedTimeSlot,
-                decoration: const InputDecoration(
-                  labelText: "Select Time",
-                  prefixIcon: Icon(Icons.access_time),
-                  border: OutlineInputBorder(),
-                ),
-                // Use dynamic availableSlots list
-                items: availableSlots.map((time) {
-                  return DropdownMenuItem(value: time, child: Text(time));
-                }).toList(),
-                onChanged: (v) => setState(() => _selectedTimeSlot = v),
-                validator: (v) => v == null ? 'Please select a time' : null,
-                // Helper text if date isn't selected yet
-                hint: _selectedDate == null
-                    ? const Text("Select Date first")
-                    : null,
-              ),
-
               const SizedBox(height: 30),
               _isLoading
                   ? const Center(child: CircularProgressIndicator())
