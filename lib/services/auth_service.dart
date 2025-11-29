@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:bitecare_app/services/http_service.dart';
 
 class AuthService {
-  static Future<bool> login(String email, String password) async {
+  // CHANGED: Return Future<Map<String, dynamic>> instead of Future<bool>
+  static Future<Map<String, dynamic>> login(String email, String password) async {
     try {
       final response = await http.post(
         Uri.parse('${HttpService.baseUrl}/login'),
@@ -11,17 +12,25 @@ class AuthService {
         body: {'email': email, 'password': password},
       );
 
+      final body = jsonDecode(response.body);
+
+      // If login is successful (Status 200 AND token exists)
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['token'] != null) {
-          await HttpService.saveToken(data['token']);
-          return true;
+        if (body['token'] != null) {
+          await HttpService.saveToken(body['token']);
+          return {'success': true, 'message': 'Login Successful'};
         }
       }
-      return false;
+      
+      // If failed (Status 401, 403, etc.), return the specific message
+      return {
+        'success': false,
+        'message': body['message'] ?? 'Login Failed'
+      };
+
     } catch (e) {
       print("Login error: $e");
-      return false;
+      return {'success': false, 'message': 'Network Error'};
     }
   }
 

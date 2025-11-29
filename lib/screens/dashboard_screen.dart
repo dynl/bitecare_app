@@ -58,7 +58,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.teal,
+        selectedItemColor: const Color(0xFF2196F3), // Blue color
         onTap: _onItemTapped,
       ),
     );

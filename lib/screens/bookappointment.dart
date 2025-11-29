@@ -1,7 +1,9 @@
+import 'package:bitecare_app/services/appointment_service.dart';
 import 'package:bitecare_app/services/recommendation_service.dart';
+import 'package:bitecare_app/services/vaccine_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:bitecare_app/services/appointment_service.dart';
+import 'package:bitecare_app/bitecare_theme.dart';
 
 class BookingScreen extends StatefulWidget {
   const BookingScreen({super.key});
@@ -22,33 +24,36 @@ class _BookingScreenState extends State<BookingScreen> {
   // Store recommendation data
   Map<String, dynamic>? _recommendation;
 
+  // --- NEW: Store Stock Data to validate availability ---
+  Map<String, int> _stockMap = {};
+
   @override
   void initState() {
     super.initState();
-    _fetchRecommendation();
+    _fetchData();
   }
 
-  void _fetchRecommendation() async {
+  void _fetchData() async {
+    // 1. Get Recommendation
     final rec = await RecommendationService.getBestDayRecommendation();
-    if (mounted && rec != null) {
+    // 2. Get Stock Map to check for 0 stock days
+    final stocks = await VaccineService.getVaccineStockMap();
+
+    if (mounted) {
       setState(() {
-        _recommendation = rec;
+        if (rec != null) _recommendation = rec;
+        _stockMap = stocks;
       });
     }
   }
 
-  // --- NEW: HELPER TO FIND VALID INITIAL DATE ---
-  // If today is Sunday, the calendar should open focused on Monday, not Sunday.
   DateTime _getInitialDate() {
     DateTime date = DateTime.now();
-
-    // If it's past 5 PM, treat "Today" as invalid, start checking from tomorrow
     if (date.hour >= 17) {
       date = date.add(const Duration(days: 1));
     }
-
-    // If resulting date is Saturday(6) or Sunday(7), move to Monday
-    while (date.weekday == 6 || date.weekday == 7) {
+    while (date.weekday == DateTime.saturday ||
+        date.weekday == DateTime.sunday) {
       date = date.add(const Duration(days: 1));
     }
     return date;
@@ -62,23 +67,19 @@ class _BookingScreenState extends State<BookingScreen> {
       initialDate: initialDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
-      // --- NEW: DISABLE WEEKENDS & LATE HOURS ---
       selectableDayPredicate: (DateTime day) {
-        // 1. Disable Weekends (Saturday=6, Sunday=7)
-        if (day.weekday == 6 || day.weekday == 7) {
+        // Disable Weekends
+        if (day.weekday == DateTime.saturday ||
+            day.weekday == DateTime.sunday) {
           return false;
         }
-
-        // 2. Disable "Today" if it is past 5:00 PM
+        // Disable "Today" if past 5 PM
         final now = DateTime.now();
         bool isToday =
             day.year == now.year &&
             day.month == now.month &&
             day.day == now.day;
-
-        if (isToday && now.hour >= 17) {
-          return false;
-        }
+        if (isToday && now.hour >= 17) return false;
 
         return true;
       },
@@ -93,11 +94,24 @@ class _BookingScreenState extends State<BookingScreen> {
 
   void _submitBooking() async {
     if (_formKey.currentState!.validate() && _selectedDate != null) {
-      setState(() => _isLoading = true);
-
+      // --- NEW: CHECK IF STOCK IS AVAILABLE ---
       final String formattedDate = DateFormat(
         'yyyy-MM-dd',
       ).format(_selectedDate!);
+
+      // Get stock for this day (Default to 0 if not found)
+      int dailyStock = _stockMap[formattedDate] ?? 0;
+
+      if (dailyStock <= 0) {
+        // BLOCK THE BOOKING
+        _showErrorDialog(
+          "No vaccine stock available for ${DateFormat('MMM d').format(_selectedDate!)}. Please choose another date.",
+        );
+        return;
+      }
+      // ----------------------------------------
+
+      setState(() => _isLoading = true);
 
       final Map<String, dynamic> bookingData = {
         'name': _nameController.text,
@@ -165,15 +179,15 @@ class _BookingScreenState extends State<BookingScreen> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.blue.shade50, Colors.white],
+                      colors: [BiteCareTheme.secondaryColor, Colors.white],
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.blue.shade200),
+                    border: Border.all(color: BiteCareTheme.primaryLightColor),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.blue.withOpacity(0.1),
+                        color: BiteCareTheme.primaryColor.withOpacity(0.1),
                         blurRadius: 8,
                         offset: const Offset(0, 4),
                       ),
@@ -183,7 +197,7 @@ class _BookingScreenState extends State<BookingScreen> {
                     children: [
                       const Icon(
                         Icons.auto_awesome,
-                        color: Colors.blue,
+                        color: Color(0xFF2196F3), // Blue color
                         size: 30,
                       ),
                       const SizedBox(width: 15),
@@ -195,7 +209,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               "Smart Suggestion",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue,
+                                color: Color(0xFF2196F3), // Blue color
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -218,7 +232,7 @@ class _BookingScreenState extends State<BookingScreen> {
                               "${_recommendation!['slots_left']} slots open • ${_recommendation!['traffic_level']} Traffic",
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.green.shade700,
+                                color: const Color(0xFF2196F3), // Blue color
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -228,7 +242,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       IconButton(
                         icon: const Icon(
                           Icons.check_circle,
-                          color: Colors.blue,
+                          color: Color(0xFF2196F3), // Blue color
                           size: 32,
                         ),
                         tooltip: "Select this date",
@@ -321,7 +335,7 @@ class _BookingScreenState extends State<BookingScreen> {
                       onPressed: _submitBooking,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.all(16),
-                        backgroundColor: Colors.teal,
+                        backgroundColor: const Color(0xFF2196F3), // Blue color
                         foregroundColor: Colors.white,
                       ),
                       child: const Text("Confirm Booking"),

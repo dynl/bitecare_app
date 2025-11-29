@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bitecare_app/providers/auth_provider.dart';
+import 'package:bitecare_app/bitecare_theme.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -13,8 +14,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _contactController = TextEditingController();
   final _passController = TextEditingController();
   final _confirmPassController = TextEditingController();
+  // Add other controllers (Name, Age, etc.) as per your Laravel Controller requirement
+  final _nameController = TextEditingController();
+  final _ageController = TextEditingController();
+  final _addressController = TextEditingController();
+
   bool _isLoading = false;
   final _formKey = GlobalKey<FormState>();
+  bool _obscurePassword = true; // For toggling password visibility
+  bool _obscureConfirmPassword =
+      true; // For toggling confirm password visibility
 
   void _handleRegister() async {
     if (_formKey.currentState!.validate()) {
@@ -26,8 +35,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
 
       setState(() => _isLoading = true);
-
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      // Update this call to include name/age/address if you updated AuthProvider
       final success = await authProvider.register(
         _emailController.text,
         _contactController.text,
@@ -42,15 +52,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             content: Text('Registration Successful! Please Login.'),
           ),
         );
-        Navigator.pop(context); // Go back to login screen
+        Navigator.pop(context);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Registration Failed. Try again with unique email/contact.',
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Registration Failed.')));
       }
     }
   }
@@ -58,77 +64,127 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Register for BiteCare")),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        backgroundColor: Colors.transparent,
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Text(
+                "Create Account",
+                style: TextStyle(
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: BiteCareTheme.textDark,
+                ),
+              ),
+              const Text(
+                "Please fill in the details below.",
+                style: TextStyle(fontSize: 16, color: BiteCareTheme.textGrey),
+              ),
+              const SizedBox(height: 30),
+
+              // NAME
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: "Full Name",
+                  prefixIcon: Icon(Icons.person_outline),
+                ),
+                validator: (v) => v!.isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 15),
+
+              // EMAIL
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(
                   labelText: "Email",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email),
+                  prefixIcon: Icon(Icons.email_outlined),
                 ),
-                keyboardType: TextInputType.emailAddress,
                 validator: (v) => v!.isEmpty || !v.contains('@')
                     ? 'Enter a valid email'
                     : null,
               ),
               const SizedBox(height: 15),
+
+              // CONTACT
               TextFormField(
                 controller: _contactController,
                 decoration: const InputDecoration(
                   labelText: "Contact Number",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.phone),
+                  prefixIcon: Icon(Icons.phone_outlined),
                 ),
-                keyboardType: TextInputType.phone,
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 15),
+
+              // PASSWORD
               TextFormField(
                 controller: _passController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: "Password",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: BiteCareTheme.textGrey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
                 ),
-                obscureText: true,
-                validator: (v) => v!.length < 6
-                    ? 'Password must be at least 6 characters'
-                    : null,
+                obscureText: _obscurePassword,
+                validator: (v) => v!.length < 6 ? 'Min 6 chars' : null,
               ),
               const SizedBox(height: 15),
+
+              // CONFIRM PASSWORD
               TextFormField(
                 controller: _confirmPassController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: "Confirm Password",
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.lock),
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: BiteCareTheme.textGrey,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+                  ),
                 ),
-                obscureText: true,
+                obscureText: _obscureConfirmPassword,
                 validator: (v) =>
                     v != _passController.text ? 'Passwords do not match' : null,
               ),
               const SizedBox(height: 30),
+
               _isLoading
-                  ? const CircularProgressIndicator()
-                  : SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _handleRegister,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 15),
-                          backgroundColor: Colors.teal,
-                          foregroundColor: Colors.white,
-                          textStyle: const TextStyle(fontSize: 18),
-                        ),
-                        child: const Text("Register"),
-                      ),
+                  ? const Center(child: CircularProgressIndicator())
+                  : ElevatedButton(
+                      onPressed: _handleRegister,
+                      child: const Text("SIGN UP"),
                     ),
+              const SizedBox(height: 30),
             ],
           ),
         ),

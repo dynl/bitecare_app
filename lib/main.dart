@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:bitecare_app/providers/auth_provider.dart';
 import 'package:bitecare_app/screens/login_screen.dart';
 import 'package:bitecare_app/screens/dashboard_screen.dart';
+import 'package:bitecare_app/screens/welcome_screen.dart'; // Import Welcome
+import 'package:bitecare_app/bitecare_theme.dart'; // Import Theme
 
 void main() {
   runApp(
@@ -21,12 +23,15 @@ class BiteCareApp extends StatelessWidget {
     return MaterialApp(
       title: 'Animal BiteCare',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.teal, useMaterial3: true),
+      // APPLY THEME HERE
+      theme: BiteCareTheme.theme, 
       home: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
+          // If logged in -> Dashboard
+          // If not logged in -> Welcome Screen (which leads to Login)
           return authProvider.isLoggedIn
               ? const DashboardScreen()
-              : const LoginScreen();
+              : const WelcomeScreen(); 
         },
       ),
     );

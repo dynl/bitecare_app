@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bitecare_app/providers/auth_provider.dart';
 import 'package:bitecare_app/screens/register_screen.dart';
+import 'package:bitecare_app/screens/dashboard_screen.dart';
+import 'package:bitecare_app/bitecare_theme.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,26 +15,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true; // For toggling password visibility
 
   void _handleLogin() async {
     setState(() => _isLoading = true);
-
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final success = await authProvider.login(
+
+    final result = await authProvider.login(
       _emailController.text,
       _passwordController.text,
     );
 
+    if (!mounted) return; // Safety check
     setState(() => _isLoading = false);
 
-    if (success) {
-      // Navigate to dashboard - handled by Provider now
+    if (result['success'] == true) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Login Successful!')));
+
+      // --- FIX IS HERE: Force Navigation to Dashboard ---
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login Failed. Check credentials.')),
+        SnackBar(
+          content: Text(result['message'] ?? 'Login Failed'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -40,57 +52,93 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("BiteCare Login")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(backgroundColor: Colors.transparent),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 20),
+            Center(child: Image.asset('assets/logo.png', height: 80)),
+            const SizedBox(height: 40),
+
+            const Text(
+              "Login",
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                color: BiteCareTheme.textDark,
+              ),
+            ),
+            const Text(
+              "Please sign in to continue.",
+              style: TextStyle(fontSize: 16, color: BiteCareTheme.textGrey),
+            ),
+            const SizedBox(height: 40),
+
             TextField(
               controller: _emailController,
               decoration: const InputDecoration(
-                labelText: "Email",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.email),
+                labelText: "Email Address",
+                prefixIcon: Icon(Icons.email_outlined),
               ),
               keyboardType: TextInputType.emailAddress,
             ),
-            const SizedBox(height: 15),
+            const SizedBox(height: 20),
             TextField(
               controller: _passwordController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: "Password",
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.lock),
+                prefixIcon: const Icon(Icons.lock_outline),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    color: BiteCareTheme.textGrey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
               ),
-              obscureText: true,
+              obscureText: _obscurePassword,
             ),
+
+
+
             const SizedBox(height: 30),
+
             _isLoading
-                ? const CircularProgressIndicator()
-                : SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _handleLogin,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor: Colors.teal,
-                        foregroundColor: Colors.white,
-                        textStyle: const TextStyle(fontSize: 18),
-                      ),
-                      child: const Text("Login"),
+                ? const Center(child: CircularProgressIndicator())
+                : ElevatedButton(
+                    onPressed: _handleLogin,
+                    child: const Text("LOGIN"),
+                  ),
+
+            const SizedBox(height: 20),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "Don't have an account? ",
+                  style: TextStyle(color: BiteCareTheme.textGrey),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                  ),
+                  child: const Text(
+                    "Sign up",
+                    style: TextStyle(
+                      color: BiteCareTheme.primaryColor,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-            const SizedBox(height: 10),
-            TextButton(
-              onPressed: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const RegisterScreen()),
-              ),
-              child: const Text(
-                "Create an Account",
-                style: TextStyle(color: Colors.teal),
-              ),
+                ),
+              ],
             ),
           ],
         ),

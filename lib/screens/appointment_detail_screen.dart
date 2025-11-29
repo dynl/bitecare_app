@@ -153,7 +153,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                       icon: const Icon(Icons.edit),
                       label: const Text("Edit Appointment"),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.teal,
+                        backgroundColor: const Color(0xFF2196F3), // Blue color
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
@@ -187,7 +187,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          Icon(icon, color: Colors.teal, size: 28),
+          Icon(icon, color: const Color(0xFF2196F3), size: 28), // Blue color
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,

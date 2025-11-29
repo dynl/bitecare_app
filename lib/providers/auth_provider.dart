@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:bitecare_app/services/auth_service.dart';
-import 'package:bitecare_app/services/http_service.dart'; // <--- Import this
+import 'package:bitecare_app/services/http_service.dart';
 
 class AuthProvider with ChangeNotifier {
   bool _isLoggedIn = false;
@@ -14,22 +14,24 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> _loadToken() async {
-    // FIX: Use HttpService to load the token
     await HttpService.loadToken();
     _authToken = HttpService.authToken;
     _isLoggedIn = _authToken != null;
     notifyListeners();
   }
 
-  Future<bool> login(String email, String password) async {
-    final success = await AuthService.login(email, password);
-    if (success) {
-      // FIX: Get token from HttpService
+  // CHANGED: Returns Map<String, dynamic> to match AuthService
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    // Now 'result' will be a Map, not a bool
+    final result = await AuthService.login(email, password);
+
+    if (result['success'] == true) {
       _authToken = HttpService.authToken;
       _isLoggedIn = true;
       notifyListeners();
     }
-    return success;
+
+    return result;
   }
 
   Future<bool> register(String email, String contact, String password) async {

@@ -1,6 +1,3 @@
-// This model represents a single appointment.
-// You might need to adjust field names based on your actual API response.
-// Refreshing file to fix import issue
 class Appointment {
   final int? id;
   final String name;
@@ -9,8 +6,10 @@ class Appointment {
   final String animalType;
   final String date;
   final String time;
-  final String? status; // e.g., 'Pending', 'Confirmed', 'Cancelled'
-  final int? userId; // If you want to link to a user
+  final String? status;
+  final int? userId;
+  final String? phoneNumber; // Changed to match Laravel 'phone_number'
+  final String purpose; // Added because Laravel requires 'purpose'
 
   Appointment({
     this.id,
@@ -22,9 +21,11 @@ class Appointment {
     required this.time,
     this.status,
     this.userId,
+    this.phoneNumber,
+    required this.purpose, // Added to constructor
   });
 
-  // Factory constructor to create an Appointment from a JSON map
+  // Factory constructor to read from Laravel JSON
   factory Appointment.fromJson(Map<String, dynamic> json) {
     return Appointment(
       id: json['id'],
@@ -36,21 +37,27 @@ class Appointment {
       time: json['time'] ?? 'N/A',
       status: json['status'] ?? 'Pending',
       userId: json['user_id'],
+      // MATCHES LARAVEL CONTROLLER OUTPUT
+      phoneNumber: json['phone_number'],
+      purpose: json['purpose'] ?? 'Check-up',
     );
   }
 
-  // Method to convert an Appointment object to a JSON map
+  // Method to send data to Laravel
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'name': name,
       'age': age,
       'sex': sex,
+      // MATCHES LARAVEL VALIDATION RULES
       'animal_type': animalType,
       'date': date,
       'time': time,
       'status': status,
       'user_id': userId,
+      'phone_number': phoneNumber, // Sends 'phone_number'
+      'purpose': purpose, // Sends 'purpose'
     };
   }
 }

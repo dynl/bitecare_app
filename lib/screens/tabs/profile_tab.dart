@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import 'package:bitecare_app/providers/auth_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:bitecare_app/services/user_service.dart';
+import 'package:bitecare_app/bitecare_theme.dart';
+import 'package:bitecare_app/screens/login_screen.dart'; // Required for navigation
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -32,7 +34,7 @@ class _ProfileTabState extends State<ProfileTab> {
     }
   }
 
-  // --- NEW: PICK & UPLOAD IMAGE ---
+  // --- PICK & UPLOAD IMAGE ---
   Future<void> _pickAndUploadImage() async {
     final ImagePicker picker = ImagePicker();
 
@@ -81,13 +83,21 @@ class _ProfileTabState extends State<ProfileTab> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                // Perform logout
+                // 1. Close the dialog
+                Navigator.of(context).pop();
+
+                // 2. Perform logout in provider (clear token)
                 final authProvider = Provider.of<AuthProvider>(
                   context,
                   listen: false,
                 );
                 authProvider.logout();
+
+                // 3. FORCE Navigation to Login Screen & Clear History
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  (route) => false, // This removes all previous routes
+                );
               },
               child: const Text("Logout", style: TextStyle(color: Colors.red)),
             ),
@@ -119,7 +129,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 // The Image
                 CircleAvatar(
                   radius: 60,
-                  backgroundColor: Colors.teal.shade100,
+                  backgroundColor: BiteCareTheme.primaryLightColor,
                   backgroundImage: avatarUrl != null
                       ? NetworkImage(avatarUrl)
                       : null,
@@ -143,7 +153,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: const BoxDecoration(
-                        color: Colors.teal,
+                        color: Color(0xFF2196F3), // Blue color
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(blurRadius: 2, color: Colors.black26),
@@ -173,7 +183,10 @@ class _ProfileTabState extends State<ProfileTab> {
           // Info Cards
           Card(
             child: ListTile(
-              leading: const Icon(Icons.phone, color: Colors.teal),
+              leading: const Icon(
+                Icons.phone,
+                color: Color(0xFF2196F3),
+              ), // Blue color
               title: const Text("Contact Number"),
               subtitle: Text(contact),
             ),
@@ -181,7 +194,10 @@ class _ProfileTabState extends State<ProfileTab> {
           const SizedBox(height: 10),
           Card(
             child: ListTile(
-              leading: const Icon(Icons.verified_user, color: Colors.teal),
+              leading: const Icon(
+                Icons.verified_user,
+                color: Color(0xFF2196F3),
+              ), // Blue color
               title: const Text("Account Status"),
               subtitle: const Text("Active Member"),
             ),

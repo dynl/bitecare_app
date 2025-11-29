@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:bitecare_app/services/http_service.dart';
 
 class RecommendationService {
-  
   static Future<Map<String, dynamic>?> getBestDayRecommendation() async {
     try {
       final response = await http.get(

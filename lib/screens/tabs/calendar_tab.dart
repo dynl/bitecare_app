@@ -3,6 +3,7 @@ import 'package:bitecare_app/services/vaccine_service.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
+import 'package:bitecare_app/bitecare_theme.dart';
 
 class CalendarTab extends StatefulWidget {
   const CalendarTab({super.key});
@@ -73,7 +74,7 @@ class _CalendarTabState extends State<CalendarTab> {
     } else if (booked >= (capacity / 2)) {
       return Colors.orange.shade300; // Half Full
     } else {
-      return Colors.green.shade400; // Available
+      return const Color(0xFF2196F3); // Blue color for available
     }
   }
 
@@ -125,7 +126,10 @@ class _CalendarTabState extends State<CalendarTab> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildLegendItem("Available", Colors.green.shade400),
+              _buildLegendItem(
+                "Available",
+                const Color(0xFF2196F3),
+              ), // Blue color
               _buildLegendItem("Half Full", Colors.orange.shade300),
               _buildLegendItem("Full", Colors.red.shade400),
               _buildLegendItem("Past", Colors.grey.shade400),
@@ -140,9 +144,9 @@ class _CalendarTabState extends State<CalendarTab> {
             margin: const EdgeInsets.symmetric(horizontal: 16),
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.teal.shade50,
+              color: BiteCareTheme.secondaryColor,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.teal.shade100),
+              border: Border.all(color: BiteCareTheme.primaryLightColor),
             ),
             child: Row(
               children: [
@@ -151,7 +155,9 @@ class _CalendarTabState extends State<CalendarTab> {
                   availableSlots > 0
                       ? Icons.check_circle_outline
                       : Icons.cancel_outlined,
-                  color: availableSlots > 0 ? Colors.teal : Colors.grey,
+                  color: availableSlots > 0
+                      ? const Color(0xFF2196F3)
+                      : Colors.grey, // Blue color
                   size: 30,
                 ),
                 const SizedBox(width: 15),
@@ -190,7 +196,7 @@ class _CalendarTabState extends State<CalendarTab> {
                                 : "$availableSlots Available Slots",
                             style: TextStyle(
                               color: availableSlots > 0
-                                  ? Colors.teal.shade800
+                                  ? const Color(0xFF2196F3) // Blue color
                                   : Colors.red.shade800,
                               fontWeight: FontWeight.w600,
                               fontSize: 15,
