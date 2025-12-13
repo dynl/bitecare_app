@@ -14,7 +14,6 @@ class BookingScreen extends StatefulWidget {
 class _BookingScreenState extends State<BookingScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // --- Controllers ---
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _ageController = TextEditingController();
   final TextEditingController _animalController = TextEditingController();
@@ -27,7 +26,6 @@ class _BookingScreenState extends State<BookingScreen> {
   DateTime? _selectedDate;
   bool _isLoading = false;
 
-  // Store recommendation data & Stock
   Map<String, dynamic>? _recommendation;
   Map<String, int> _stockMap = {};
 
@@ -48,13 +46,10 @@ class _BookingScreenState extends State<BookingScreen> {
   }
 
   void _fetchData() async {
-    // 1. Get Stock Map first (Vital for validation)
     final stocks = await VaccineService.getVaccineStockMap();
 
-    // 2. Try to find the "True Best Day" locally (Day with HIGHEST stock)
     Map<String, dynamic>? bestDay;
 
-    // Default: Check backend, but we will likely override it
     final backendRec = await RecommendationService.getBestDayRecommendation();
 
     if (mounted) {
@@ -62,18 +57,14 @@ class _BookingScreenState extends State<BookingScreen> {
         _stockMap = stocks;
       });
 
-      // --- LOGIC TO FIND DAY WITH HIGHEST STOCK ---
       String? bestDateKey;
       int maxStock = -1;
 
-      // Filter only future dates
       final now = DateTime.now();
       final todayStr = DateFormat('yyyy-MM-dd').format(now);
 
       stocks.forEach((dateKey, qty) {
-        // Simple check: Must be today or future, and quantity > 0
         if (dateKey.compareTo(todayStr) >= 0 && qty > 0) {
-          // Check if this day has more stock than our current best
           if (qty > maxStock) {
             maxStock = qty;
             bestDateKey = dateKey;
@@ -81,7 +72,6 @@ class _BookingScreenState extends State<BookingScreen> {
         }
       });
 
-      // If we found a day with high stock locally, construct our own recommendation
       if (bestDateKey != null && maxStock > 0) {
         DateTime dateObj = DateTime.parse(bestDateKey!);
         String readable = DateFormat('MMMM d, yyyy (EEEE)').format(dateObj);
@@ -90,10 +80,9 @@ class _BookingScreenState extends State<BookingScreen> {
           'date': bestDateKey,
           'readable_date': readable,
           'slots_left': maxStock,
-          'traffic_level': maxStock > 10 ? 'Low' : 'Moderate', // Dynamic label
+          'traffic_level': maxStock > 10 ? 'Low' : 'Moderate',
         };
       } else {
-        // Fallback to backend if local calc fails
         bestDay = backendRec;
       }
 
@@ -103,7 +92,6 @@ class _BookingScreenState extends State<BookingScreen> {
     }
   }
 
-  // --- Helper to disable weekends and past times ---
   DateTime _getInitialDate() {
     DateTime date = DateTime.now();
     if (date.hour >= 17) {
@@ -125,12 +113,10 @@ class _BookingScreenState extends State<BookingScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
       selectableDayPredicate: (DateTime day) {
-        // Disable Weekends
         if (day.weekday == DateTime.saturday ||
             day.weekday == DateTime.sunday) {
           return false;
         }
-        // Disable "Today" if past 5 PM
         final now = DateTime.now();
         bool isToday =
             day.year == now.year &&
@@ -151,7 +137,6 @@ class _BookingScreenState extends State<BookingScreen> {
 
   void _submitBooking() async {
     if (_formKey.currentState!.validate() && _selectedDate != null) {
-      // --- CHECK IF STOCK IS AVAILABLE ---
       final String formattedDate = DateFormat(
         'yyyy-MM-dd',
       ).format(_selectedDate!);
@@ -230,7 +215,6 @@ class _BookingScreenState extends State<BookingScreen> {
           key: _formKey,
           child: ListView(
             children: [
-              // --- SMART SUGGESTION CARD ---
               if (_recommendation != null)
                 Container(
                   margin: const EdgeInsets.only(bottom: 20),
@@ -264,7 +248,6 @@ class _BookingScreenState extends State<BookingScreen> {
                               ),
                             ),
                             const SizedBox(height: 4),
-                            // CHANGED TEXT: Emphasize Stock Availability
                             Text(
                               "Best Availability (${_recommendation!['slots_left']} doses left):",
                               style: TextStyle(
@@ -316,7 +299,6 @@ class _BookingScreenState extends State<BookingScreen> {
                   ),
                 ),
 
-              // --- FORM FIELDS ---
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(

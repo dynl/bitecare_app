@@ -17,7 +17,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final List<Widget> _pages = [
     const AppointmentsTab(),
     const CalendarTab(),
-    const NotificationsTab(), // Index 2
+    const NotificationsTab(),
     const ProfileTab(),
   ];
 
@@ -30,7 +30,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // We hide the main AppBar on the Notification Tab because it has its own
       appBar: _selectedIndex == 2
           ? null
           : AppBar(
@@ -45,7 +44,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed, // Required for 4+ items
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.list_alt),

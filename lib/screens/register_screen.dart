@@ -34,7 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() => _isLoading = true);
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final success = await authProvider.register(
-        _nameController.text, // <--- ADDED THIS
+        _nameController.text,
         _emailController.text,
         _contactController.text,
         _passController.text,

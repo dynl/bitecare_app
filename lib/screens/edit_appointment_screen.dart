@@ -167,7 +167,6 @@ class _EditAppointmentScreenState extends State<EditAppointmentScreen> {
                 validator: (v) => v!.isEmpty ? 'Required' : null,
               ),
               const SizedBox(height: 15),
-              // ADDED PHONE FIELD
               TextFormField(
                 controller: _phoneController,
                 decoration: const InputDecoration(

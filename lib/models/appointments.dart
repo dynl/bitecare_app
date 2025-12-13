@@ -9,7 +9,6 @@ class Appointment {
   final String? status;
   final int? userId;
   final String? phoneNumber;
-  // --- NEW FIELDS ---
   final String? guardian;
   final String? purpose;
 
@@ -24,7 +23,6 @@ class Appointment {
     this.status,
     this.userId,
     this.phoneNumber,
-    // --- NEW CONSTRUCTOR ARGS ---
     this.guardian,
     this.purpose,
   });
@@ -41,7 +39,6 @@ class Appointment {
       status: json['status'] ?? 'Pending',
       userId: json['user_id'],
       phoneNumber: json['phone_number'],
-      // --- MAP NEW FIELDS ---
       guardian: json['guardian'],
       purpose: json['purpose'],
     );
@@ -59,7 +56,6 @@ class Appointment {
       'status': status,
       'user_id': userId,
       'phone_number': phoneNumber,
-      // --- SERIALIZE NEW FIELDS ---
       'guardian': guardian,
       'purpose': purpose,
     };

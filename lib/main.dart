@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bitecare_app/providers/auth_provider.dart';
 import 'package:bitecare_app/screens/dashboard_screen.dart';
-import 'package:bitecare_app/screens/welcome_screen.dart'; // Import Welcome
-import 'package:bitecare_app/bitecare_theme.dart'; // Import Theme
+import 'package:bitecare_app/screens/welcome_screen.dart';
+import 'package:bitecare_app/bitecare_theme.dart';
 
 void main() {
   runApp(
@@ -26,8 +26,6 @@ class BiteCareApp extends StatelessWidget {
       theme: BiteCareTheme.theme, 
       home: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
-          // If logged in -> Dashboard
-          // If not logged in -> Welcome Screen (which leads to Login)
           return authProvider.isLoggedIn
               ? const DashboardScreen()
               : const WelcomeScreen(); 

@@ -15,11 +15,9 @@ class WelcomeScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Spacer(flex: 2),
-              // LOGO
               Image.asset('assets/logo.png', height: 120),
               const SizedBox(height: 30),
 
-              // TITLE
               const Text(
                 "Welcome to BiteCare",
                 style: TextStyle(
@@ -31,7 +29,6 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
 
-              // SUBTITLE
               const Text(
                 "Schedule your anti-rabies shot in just a few taps.",
                 style: TextStyle(fontSize: 16, color: BiteCareTheme.textGrey),
@@ -39,7 +36,6 @@ class WelcomeScreen extends StatelessWidget {
               ),
               const Spacer(flex: 3),
 
-              // BUTTON
               ElevatedButton(
                 onPressed: () {
                   Navigator.pushReplacement(

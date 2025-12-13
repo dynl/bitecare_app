@@ -43,9 +43,8 @@ class _AppointmentHistoryScreenState extends State<AppointmentHistoryScreen> {
 
       final status = appt.status?.toLowerCase() ?? '';
       bool isCancelled = status == 'cancelled';
-      bool isCompleted = status == 'completed'; // <--- NEW CHECK
+      bool isCompleted = status == 'completed';
 
-      // Include in history if: Past OR Cancelled OR Completed
       return isPast || isCancelled || isCompleted;
     }).toList();
   }

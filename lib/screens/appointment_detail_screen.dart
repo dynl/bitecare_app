@@ -16,7 +16,6 @@ class AppointmentDetailScreen extends StatefulWidget {
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   bool _isLoading = false;
 
-  // --- HELPER: GET STATUS COLOR ---
   Color _getStatusColor(String? status) {
     switch (status?.toLowerCase()) {
       case 'confirmed':
@@ -110,7 +109,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- STATUS BADGE ---
                   Center(
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -145,7 +143,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // --- DETAILS CARD ---
                   Card(
                     elevation: 3,
                     shape: RoundedRectangleBorder(
@@ -163,7 +160,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           ),
                           const Divider(),
 
-                          // --- NEW FIELD: GUARDIAN ---
                           _buildDetailRow(
                             Icons.person_outline,
                             "Guardian",
@@ -171,7 +167,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           ),
                           const Divider(),
 
-                          // --- NEW FIELD: PHONE ---
                           _buildDetailRow(
                             Icons.phone,
                             "Contact Number",
@@ -194,7 +189,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           _buildDetailRow(Icons.access_time, "Time", appt.time),
                           const Divider(),
 
-                          // --- NEW FIELD: PURPOSE ---
                           _buildDetailRow(
                             Icons.vaccines,
                             "Purpose",
@@ -216,7 +210,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
 
                   const SizedBox(height: 30),
 
-                  // --- EDIT BUTTON ---
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -233,7 +226,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
 
                   const SizedBox(height: 10),
 
-                  // --- DELETE BUTTON ---
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
@@ -260,7 +252,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: const Color(0xFF2196F3), size: 28), // Blue color
+          Icon(icon, color: const Color(0xFF2196F3), size: 28),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
