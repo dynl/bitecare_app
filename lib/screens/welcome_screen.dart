@@ -19,7 +19,7 @@ class WelcomeScreen extends StatelessWidget {
               const SizedBox(height: 30),
 
               const Text(
-                "Welcome to BiteCare",
+                "Welcome to BiteCare!",
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
